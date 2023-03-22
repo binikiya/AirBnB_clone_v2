@@ -70,13 +70,7 @@ class DBStorage:
             obj (obj): an object
         """
         if obj:
-            try:
-                self.__session.add(obj)
-                self.__session.flush()
-                self.__session.refresh(obj)
-            except Exception as ex:
-                self.__session.rollback()
-                raise ex
+            self.__session.add(obj)
 
     def save(self):
         """
