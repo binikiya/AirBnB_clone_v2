@@ -128,23 +128,28 @@ class HBNBCommand(cmd.Cmd):
         if new_args[0] in self.classes:
             new_instance = self.classes[new_args[0]]()
             new_dict = {}
+            # update the dictionary with the key and value with '=' delimiter
             for a in new_args:
                 if a != new_args[0]:
-                    new_list = a.split('=')
+                    new_list = a.split('=')  # splits the parameter using '='
                     new_dict[new_list[0]] = new_list[1]
 
+            # set attribute for new instance according to data type
             for k, v in new_dict.items():
+                # check for string value
                 if v[0] == '"':
                     v_list = shlex.split(v)
                     new_dict[k] = v_list[0]
                     setattr(new_instance, k, new_dict[k])
                 else:
                     try:
+                        # check for integer value
                         if type(eval(v)).__name__ == 'int':
                             v = eval(v)
                     except:
                         continue
                     try:
+                        # check for float value
                         if type(eval(str(v))).__name__ == 'float':
                             v = eval(v)
                     except:
