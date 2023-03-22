@@ -16,7 +16,7 @@ class State(BaseModel, Base):
 
     @property
     def cities(self):
-        """get list of City instances with state_id equals to the current State.id"""
+        """get list of City instances with state_id = current State.id"""
         list_cities = []
         all_cities = models.storage.all(City)
         for key, city_obj in all_cities.items():
