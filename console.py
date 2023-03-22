@@ -10,6 +10,7 @@ from models.state import State
 from models.city import City
 from models.amenity import Amenity
 from models.review import Review
+import shlex
 
 
 class HBNBCommand(cmd.Cmd):
@@ -18,11 +19,9 @@ class HBNBCommand(cmd.Cmd):
     # determines prompt for interactive/non-interactive modes
     prompt = '(hbnb) ' if sys.__stdin__.isatty() else ''
 
-    classes = {
-               'BaseModel': BaseModel, 'User': User, 'Place': Place,
-               'State': State, 'City': City, 'Amenity': Amenity,
-               'Review': Review
-              }
+    classes = {"Amenity": Amenity, "BaseModel": BaseModel, "City": City,
+               "Place": Place, "Review": Review, "State": State,
+               "User": User}
     dot_cmds = ['all', 'count', 'show', 'destroy', 'update']
     types = {
              'number_rooms': int, 'number_bathrooms': int,
@@ -72,7 +71,7 @@ class HBNBCommand(cmd.Cmd):
                 pline = pline[2].strip()  # pline is now str
                 if pline:
                     # check for *args or **kwargs
-                    if pline[0] is '{' and pline[-1] is'}'\
+                    if pline[0] == '{' and pline[-1] == '}'\
                             and type(eval(pline)) is dict:
                         _args = pline
                     else:
@@ -112,18 +111,49 @@ class HBNBCommand(cmd.Cmd):
         """ Overrides the emptyline method of CMD """
         pass
 
-    def do_create(self, args):
+    def do_create(self, arg):
         """ Create an object of any class"""
-        if not args:
+        args = arg.split()
+
+        if len(args) == 0:
             print("** class name missing **")
             return
-        elif args not in HBNBCommand.classes:
+
+        new_args = []
+        for a in args:
+            start_idx = a.find("=")
+            a = a[0: start_idx] + a[start_idx:].replace('_', ' ')
+            new_args.append(a)
+
+        if new_args[0] in self.classes:
+            new_instance = self.classes[new_args[0]]()
+            new_dict = {}
+            for a in new_args:
+                if a != new_args[0]:
+                    new_list = a.split('=')
+                    new_dict[new_list[0]] = new_list[1]
+
+            for k, v in new_dict.items():
+                if v[0] == '"':
+                    v_list = shlex.split(v)
+                    new_dict[k] = v_list[0]
+                    setattr(new_instance, k, new_dict[k])
+                else:
+                    try:
+                        if type(eval(v)).__name__ == 'int':
+                            v = eval(v)
+                    except:
+                        continue
+                    try:
+                        if type(eval(str(v))).__name__ == 'float':
+                            v = eval(v)
+                    except:
+                        continue
+                    setattr(new_instance, k, v)
+            new_instance.save()
+            print(new_instance.id)
+        else:
             print("** class doesn't exist **")
-            return
-        new_instance = HBNBCommand.classes[args]()
-        storage.save()
-        print(new_instance.id)
-        storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -271,7 +301,7 @@ class HBNBCommand(cmd.Cmd):
                 args.append(v)
         else:  # isolate args
             args = args[2]
-            if args and args[0] is '\"':  # check for quoted arg
+            if args and args[0] == '\"':  # check for quoted arg
                 second_quote = args.find('\"', 1)
                 att_name = args[1:second_quote]
                 args = args[second_quote + 1:]
@@ -279,10 +309,10 @@ class HBNBCommand(cmd.Cmd):
             args = args.partition(' ')
 
             # if att_name was not quoted arg
-            if not att_name and args[0] is not ' ':
+            if not att_name and args[0] != ' ':
                 att_name = args[0]
             # check for quoted val arg
-            if args[2] and args[2][0] is '\"':
+            if args[2] and args[2][0] == '\"':
                 att_val = args[2][1:args[2].find('\"', 1)]
 
             # if att_val was not quoted arg
