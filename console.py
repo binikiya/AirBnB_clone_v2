@@ -75,12 +75,12 @@ class HBNBCommand(cmd.Cmd):
                     try:
                         if type(eval(v)).__name__ == 'int':
                             v = eval(v)
-                    except:
+                    except TypeError:
                         continue
                     try:
                         if type(eval(str(v))).__name__ == 'float':
                             v = eval(v)
-                    except:
+                    except TypeError:
                         continue
                     setattr(new_instance, k, v)
             new_instance.save()
@@ -249,4 +249,3 @@ if __name__ == "__main__":
         Entry point for the loop.
     '''
     HBNBCommand().cmdloop()
-    
