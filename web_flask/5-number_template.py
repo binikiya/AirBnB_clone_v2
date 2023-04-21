@@ -40,7 +40,7 @@ def only_integer(n):
 
 @app.route('/number_template/<int:n>', strict_slashes=False)
 def only_integer_html(n):
-    """displaying int in html"""
+    """displaying in html"""
     return render_template("5-number.html", n = n)
 
 
