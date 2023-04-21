@@ -6,13 +6,13 @@ from flask import Flask
 app = Flask(__name__)
 
 
-app.route('/', strict_slashes=False)
+@app.route('/', strict_slashes=False)
 def hello():
     """displaying"""
     return "Hello HBNB!"
 
-app.route('/hbnb', strict_slashes=False)
-def hbnbOnly():
+@app.route('/hbnb', strict_slashes=False)
+def hbnb_only():
     """displaying"""
     return "HBNB"
 
