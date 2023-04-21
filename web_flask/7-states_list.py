@@ -8,6 +8,12 @@ from models.state import State
 app = Flask(__name__)
 
 
+@app.teardown_appcontext
+def tear_down(self):
+    """closint storage"""
+    storage.close()
+
+
 @app.route('/states_list', strict_slashes=False)
 def list_states():
     """display an html page"""
